@@ -1,0 +1,339 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NusaMart - Toko Online</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f5f7f5;
+    color: #222;
+}
+
+header {
+    background: #176b4b;
+    color: white;
+    padding: 20px 7%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 27px;
+    font-weight: bold;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+}
+
+.hero {
+    padding: 75px 7%;
+    background: #e5f2e9;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 40px;
+    margin-bottom: 15px;
+}
+
+.hero p {
+    color: #555;
+    margin-bottom: 25px;
+}
+
+.btn {
+    background: #176b4b;
+    color: white;
+    border: none;
+    padding: 13px 25px;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.container {
+    padding: 50px 7%;
+}
+
+.container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.products {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.product {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 3px 12px rgba(0,0,0,.08);
+}
+
+.product img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.product h3 {
+    margin: 12px 0;
+}
+
+.price {
+    color: #176b4b;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.product button {
+    background: #176b4b;
+    color: white;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.product button:hover,
+.btn:hover {
+    background: #10543a;
+}
+
+.cart {
+    background: white;
+    padding: 25px;
+    margin-top: 35px;
+    border-radius: 10px;
+}
+
+.cart ul {
+    list-style: none;
+    margin: 15px 0;
+}
+
+.cart li {
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+footer {
+    background: #176b4b;
+    color: white;
+    text-align: center;
+    padding: 25px;
+}
+
+@media(max-width: 900px) {
+    .products {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media(max-width: 500px) {
+    header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    nav a {
+        margin: 0 7px;
+    }
+
+    .hero h1 {
+        font-size: 29px;
+    }
+
+    .products {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">NusaMart.</div>
+    <nav>
+        <a href="#home">Home</a>
+        <a href="#produk">Produk</a>
+        <a href="#keranjang">Keranjang</a>
+    </nav>
+</header>
+
+<section class="hero" id="home">
+    <h1>Selamat Datang di NusaMart</h1>
+    <p>Belanja mudah, murah, dan nyaman hanya di toko kami.</p>
+    <a href="#produk" class="btn">Belanja Sekarang</a>
+</section>
+
+<section class="container" id="produk">
+    <h2>Produk Kami</h2>
+
+    <div class="products" id="productList"></div>
+
+    <div class="cart" id="keranjang">
+        <h2>Keranjang Belanja</h2>
+        <ul id="cartList"></ul>
+        <h3>Total: <span id="total">Rp0</span></h3>
+        <br>
+        <button class="btn" onclick="checkout()">
+            Checkout WhatsApp
+        </button>
+    </div>
+</section>
+
+<footer>
+    <p>&copy; 2026 NusaMart. All Rights Reserved.</p>
+</footer>
+
+<script>
+const products = [
+    {
+        id: 1,
+        name: "Kaos Premium",
+        price: 89000,
+        image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500"
+    },
+    {
+        id: 2,
+        name: "Tas Fashion",
+        price: 145000,
+        image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500"
+    },
+    {
+        id: 3,
+        name: "Headphone",
+        price: 259000,
+        image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500"
+    },
+    {
+        id: 4,
+        name: "Sepatu Sneakers",
+        price: 329000,
+        image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500"
+    }
+];
+
+let cart = [];
+
+function formatRupiah(number) {
+    return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0
+    }).format(number);
+}
+
+function showProducts() {
+    const productList = document.getElementById("productList");
+
+    productList.innerHTML = products.map(product => `
+        <div class="product">
+            <img src="${product.image}" alt="${product.name}">
+            <h3>${product.name}</h3>
+            <p class="price">${formatRupiah(product.price)}</p>
+            <button onclick="addToCart(${product.id})">
+                Tambah ke Keranjang
+            </button>
+        </div>
+    `).join("");
+}
+
+function addToCart(id) {
+    const product = products.find(p => p.id === id);
+    const existing = cart.find(item => item.id === id);
+
+    if (existing) {
+        existing.qty++;
+    } else {
+        cart.push({
+            ...product,
+            qty: 1
+        });
+    }
+
+    showCart();
+}
+
+function showCart() {
+    const cartList = document.getElementById("cartList");
+    let total = 0;
+
+    cartList.innerHTML = cart.map(item => {
+        total += item.price * item.qty;
+
+        return `
+            <li>
+                ${item.name} (${item.qty}x)
+                - ${formatRupiah(item.price * item.qty)}
+                <button onclick="removeCart(${item.id})">
+                    Hapus
+                </button>
+            </li>
+        `;
+    }).join("");
+
+    document.getElementById("total").innerText =
+        formatRupiah(total);
+}
+
+function removeCart(id) {
+    cart = cart.filter(item => item.id !== id);
+    showCart();
+}
+
+function checkout() {
+    if (cart.length === 0) {
+        alert("Keranjang masih kosong!");
+        return;
+    }
+
+    let message = "Halo, saya ingin memesan:%0A";
+    let total = 0;
+
+    cart.forEach(item => {
+        message += `- ${item.name} (${item.qty}x)%0A`;
+        total += item.price * item.qty;
+    });
+
+    message += `%0ATotal: ${formatRupiah(total)}`;
+
+    // Ganti dengan nomor WhatsApp toko kamu.
+    const nomor = "6281234567890";
+
+    window.open(
+        `https://wa.me/${nomor}?text=${encodeURIComponent(
+            decodeURIComponent(message)
+        )}`,
+        "_blank"
+    );
+}
+
+showProducts();
+showCart();
+</script>
+
+</body>
+</html>
